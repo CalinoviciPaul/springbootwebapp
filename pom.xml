@@ -72,7 +72,8 @@
 				<configuration>
 
                     <!--<dockerHost>http://127.0.0.1:2375</dockerHost>-->
-                    <dockerHost>unix:///var/run/docker.sock</dockerHost>
+                    <!--<dockerHost>unix:///var/run/docker.sock</dockerHost>-->
+					<dockerHost>tcp://192.168.99.100:2376</dockerHost>
 
                     <verbose>true</verbose>
 					<images>
@@ -99,6 +100,7 @@
                                 </links>
                                 <env>
                                     <SPRING_RABBITMQ_HOST>rabbitmq</SPRING_RABBITMQ_HOST>
+                                    <SPRING_RABBITMQ_PORT>5672</SPRING_RABBITMQ_PORT>
                                 </env>
                                 <dependsOn>
                                     <container>myrabbitmq</container>
@@ -108,7 +110,7 @@
 						</image>
                         <!--mysql container-->
 						<image>
-							<name>mysql</name>
+							<name>mysql:5.7</name>
                             <alias>mysqldb</alias>
 							<run>
                                 <!--expose port for dn-->
@@ -122,7 +124,7 @@
                                 </env>
                                 <!--wait for db to start-->
                                 <wait>
-                                    <time>10000</time>
+                                    <time>1000</time>
                                 </wait>
 							</run>
 						</image>
@@ -139,7 +141,7 @@
                                 </ports>
                                 <!--wait for db to start-->
                                 <wait>
-                                    <time>10000</time>
+                                    <time>1000</time>
                                 </wait>
                             </run>
                         </image>
@@ -162,17 +164,18 @@
                                     <SPRING_DATASOURCE_URL>jdbc:mysql://mysqldb:3306/pageviewservice</SPRING_DATASOURCE_URL>
                                     <SPRING_PROFILES_ACTIVE>mysql</SPRING_PROFILES_ACTIVE>
                                     <SPRING_RABBITMQ_HOST>rabbitmq</SPRING_RABBITMQ_HOST>
+                                    <SPRING_RABBITMQ_PORT>5672</SPRING_RABBITMQ_PORT>
                                 </env>
                                 <dependsOn>
                                     <container>myrabbitmq</container>
                                     <container>mysql</container>
                                 </dependsOn>
                                 <wait>
-                                    <http>
-                                        <url>http://localhost:8081/health</url>
+                                   <!-- <http>
+                                        <url>http://localhost:8081/actuator/health</url>
                                         <method>GET</method>
                                         <status>200..399</status>
-                                    </http>
+                                    </http>-->
                                     <time>75000</time>
                                 </wait>
                             </run>
@@ -202,7 +205,7 @@
             <plugin>
                 <groupId>org.codehaus.gmavenplus</groupId>
                 <artifactId>gmavenplus-plugin</artifactId>
-                <version>1.5</version>
+                <version>1.6.2</version>
                 <executions>
                     <execution>
                         <phase>prepare-package</phase>
